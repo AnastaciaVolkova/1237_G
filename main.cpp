@@ -37,17 +37,22 @@ public:
         end_ = n;
         n->next = start_;
         n->prev = end_;
+        size_ = 1;
     }
     size_t size(){return size_;};
-    class iterator{
+    class iterator {
     private:
         Node<T>* x_;
     public:
-        iterator(Node<T>* n):x_(n){};
+        iterator(Node<T>* n) :x_(n) {};
+        iterator(const iterator& it) { x_ = it.x_; };
         iterator& operator++(){ x_ = x_->next; return *this;};
         iterator& operator--(){ x_ = x_->prev; return *this;};
         iterator& operator+=(int a){
-            for (int i = 0; i < a; i++) ++(*this);
+            for (int i = 0; i < a; i++) { 
+                ++(*this); 
+                __asm nop
+            }
             return *this;
         };
         iterator& operator-=(int a){
@@ -63,24 +68,25 @@ public:
     iterator begin(){return iterator(start_);};
     iterator end(){return iterator(end_);};
 
-    iterator Insert(iterator pos, T core){
-        iterator it = begin();
-        if (pos == end()){
-            Insert(core);
+    iterator Insert(iterator pos, T core){       
+        iterator my_end = end();
+        if (my_end == pos){
+            return Insert(core);
         }
         else{
-            while((it != end())&&(pos != it))
+            iterator it = pos;
+            while((it != my_end)&&(pos != it))
                 ++it;
-            if (it == end())
+            if (it == my_end)
                return nullptr;
+            Node<T>* n = new Node<T>(core);
+            n->next = pos->next;
+            n->prev = pos;
+            pos->next->prev = n;
+            pos->next = n;
+            size_++;
+            return iterator(n);
         }
-        Node<T>* n = new Node<T>(core);        
-        n->next = pos->next;
-        n->prev = pos;
-        pos->next->prev = n;
-        pos->next = n;
-        size_++;            
-        return iterator(n);
     }
     iterator Insert(T core){
         Node<T>* n = new Node<T>(core);
@@ -133,22 +139,24 @@ public:
 template<> long long Node<int>::id = 0;
 
 void Algorithm(/*const Circle& cir, vector<vector<int>> solution*/){
-    CircleList<int> cir(1);
-    
+    CircleList<int> cir(1); 
     cir.Insert(2);
     cir.Insert(3);
     cir.Insert(4);
 
+    CircleList<int>::iterator it1 = cir.begin();
+    CircleList<int>::iterator it2 = cir.end();
+    cout << std::boolalpha << (it1 == it2) << endl;
     {
         CircleList<int>::iterator it = cir.begin();
         it = cir.Insert(it, 10);
-        it+=2;
-        it = cir.Insert(it, 30);
-        it += 1;
-        it = cir.Insert(it, 40);
-        it = cir.begin();
-        it += (cir.size() - 1);
-        cir.Insert(it, 50);
+        //it+=2;
+        //it = cir.Insert(it, 30);
+        //it += 1;
+        //it = cir.Insert(it, 40);
+        //it = cir.begin();
+        //it += (cir.size() - 1);
+        //cir.Insert(it, 50);
     }
 
     CircleList<int>::iterator it = cir.begin();
