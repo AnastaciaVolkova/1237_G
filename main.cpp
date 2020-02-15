@@ -16,13 +16,16 @@ template<typename T>
 struct Node{
     Node* next;
     Node* prev;
-    static long long id;
+    long long my_id;
+    static long long global_id;
     T core;
     Node(T c){
         core = c;
-        id++;
+        my_id = global_id;
+        global_id++;
     }
 };
+
 
 template<typename T> 
 class CircleList{
@@ -45,7 +48,6 @@ public:
         Node<T>* x_;
     public:
         iterator(Node<T>* n) :x_(n) {};
-        iterator(const iterator& it) { x_ = it.x_; };
         iterator& operator++(){ x_ = x_->next; return *this;};
         iterator& operator--(){ x_ = x_->prev; return *this;};
         iterator& operator+=(int a){
@@ -59,8 +61,8 @@ public:
             for (int i = 0; i < a; i++) ++(*this);
             return *this;
         };
-        bool operator!=(iterator& it){return x_->id != it.x_->id;};
-        bool operator==(iterator& it){return x_->id ==it.x_->id;};
+        bool operator!=(iterator& it){return x_->my_id != it.x_->my_id;};
+        bool operator==(iterator& it){ return (x_->my_id == it.x_->my_id); };
         operator Node<T>* (){return x_;};
         Node<T>* operator->(){return x_;};
     };
@@ -136,42 +138,41 @@ public:
 };
 */
 
-template<> long long Node<int>::id = 0;
+template<> long long Node<int>::global_id = 0;
 
-void Algorithm(/*const Circle& cir, vector<vector<int>> solution*/){
-    CircleList<int> cir(1); 
+void TestCircle() {
+    CircleList<int> cir(1);
     cir.Insert(2);
     cir.Insert(3);
     cir.Insert(4);
 
-    CircleList<int>::iterator it1 = cir.begin();
-    CircleList<int>::iterator it2 = cir.end();
-    cout << std::boolalpha << (it1 == it2) << endl;
     {
         CircleList<int>::iterator it = cir.begin();
         it = cir.Insert(it, 10);
-        //it+=2;
-        //it = cir.Insert(it, 30);
-        //it += 1;
-        //it = cir.Insert(it, 40);
-        //it = cir.begin();
-        //it += (cir.size() - 1);
-        //cir.Insert(it, 50);
+        it += 2;
+        it = cir.Insert(it, 30);
+        it += 1;
+        it = cir.Insert(it, 40);
+        it = cir.begin();
+        it += (cir.size() - 1);
+        cir.Insert(it, 50);
     }
 
     CircleList<int>::iterator it = cir.begin();
-    for (int i = 0; i < 19; i++){
+    for (int i = 0; i < 19; i++) {
         cout << it->core << endl;
         ++it;
     }
     cout << endl << endl;
-    for (int i = 0; i < 18; i++){
+    for (int i = 0; i < 18; i++) {
         cout << it->core << endl;
         --it;
     }
-    
+};
 
-    /*int q = cir.GetValue();
+/*
+void Algorithm(const Circle& cir, vector<vector<int>> solution){
+    int q = cir.GetValue();
     map<int, int> meetings;
     for (int i = 0; i < cir.GetSize(); i++){
         meetings.emplace(make_pair(i, cir.GetSum(i)));
@@ -189,13 +190,14 @@ void Algorithm(/*const Circle& cir, vector<vector<int>> solution*/){
         for (int i = t->first-cir.GetK(); i < t->first; i++)
             meetings.erase(i);
         meetings.erase(t);
-    }i*/
+    }
 };
+*/
 
 int main(){
     //Circle cir{3, 2, 6, 1, 10, 3, 2};
     //vector<vector<int>> solution;
     //Algorithm(cir, solution);
-    Algorithm();
+    TestCircle();
     return 0;
 }
