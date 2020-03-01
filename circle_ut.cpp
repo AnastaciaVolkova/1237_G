@@ -1,4 +1,4 @@
-#include "CircleList.hpp"
+#include "circle_list.hpp"
 
 using namespace std;
 
@@ -63,7 +63,7 @@ void TestCircleVec(){
     cout << endl << endl;
 };
 
-template<> long long Node<conditional<is_specialization<int, vector>::value, int, vector<int>>::type>::global_id = 0;
+template<> long long Node<int>::global_id = 0;
 
 int main(int argc, char* argv[]){
     if (argc == 1){

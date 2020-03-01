@@ -1,22 +1,14 @@
-#include <array>
 #include <vector>
 #include <initializer_list>
 #include <algorithm>
 #include <numeric>
 #include <map>
-#include <queue>
-#include <tuple>
 #include <cmath>
 #include <memory>
 #include <iostream>
 
 using namespace std;
 
-template<typename Test, template<typename...> class Ref>
-struct is_specialization : false_type {};
-
-template<template<typename...> class Ref, typename... Args>
-struct is_specialization<Ref<Args...>, Ref> : true_type {};
 
 template<typename T>
 struct Node {
@@ -34,8 +26,7 @@ struct Node {
     ~Node() { cout << "Node " << my_id << " is deleted." << endl; }
 
     friend ostream& operator<<(ostream& os, Node<T>& n) {
-        for (auto it : n.core)
-            os << it << ", ";
+        os << n.core;
         return os;
     }
 };
@@ -43,15 +34,12 @@ struct Node {
 template<typename T>
 class CircleList {
 private:
-    using CoreT=typename conditional<is_specialization<T, vector>::value,T, vector<T>>::type;
-    shared_ptr<Node<CoreT>> start_;
-    shared_ptr<Node<CoreT>> end_;
+    shared_ptr<Node<T>> start_;
+    shared_ptr<Node<T>> end_;
     size_t size_;
 public:
     CircleList(T core) {
-        CoreT first_node_val;
-        first_node_val.push_back(core);
-        shared_ptr<Node<CoreT>> n = make_shared<Node<CoreT>>(first_node_val);
+        shared_ptr<Node<T>> n = make_shared<Node<T>>(core);
         start_ = n;
         end_ = n;
         n->next = start_;
@@ -60,9 +48,7 @@ public:
     }
 
     CircleList(vector<T> core){
-        CoreT first_node_val;
-        first_node_val.push_back(core[0]);
-        shared_ptr<Node<CoreT>> n = make_shared<Node<CoreT>>(first_node_val);
+        shared_ptr<Node<T>> n = make_shared<Node<T>>(core[0]);
         start_ = n;
         end_ = n;
         n->next = start_;
@@ -84,9 +70,9 @@ public:
     }
 
     ~CircleList() {
-        shared_ptr<Node<CoreT>> cur_node = start_;
+        shared_ptr<Node<T>> cur_node = start_;
         while (cur_node != end_) {
-            shared_ptr<Node<CoreT>> tmp_node = cur_node;
+            shared_ptr<Node<T>> tmp_node = cur_node;
             cur_node = cur_node->next;
             tmp_node->prev.reset();
             tmp_node->next.reset();
@@ -100,9 +86,9 @@ public:
     size_t size() { return size_; };
     class iterator {
     private:
-        shared_ptr<Node<CoreT>> x_;
+        shared_ptr<Node<T>> x_;
     public:
-        iterator(shared_ptr<Node<CoreT>> n) :x_(n) {};
+        iterator(shared_ptr<Node<T>> n) :x_(n) {};
         iterator& operator++() { x_ = x_->next; return *this; };
         iterator& operator--() { x_ = x_->prev; return *this; };
         iterator& operator+=(int a) {
@@ -115,16 +101,16 @@ public:
         };
         bool operator!=(const iterator& it) { return x_->my_id != it.x_->my_id; };
         bool operator==(const iterator& it) { return (x_->my_id == it.x_->my_id); };
-        operator Node<CoreT>() { return *(x_.get()); };
-        operator shared_ptr<Node<CoreT>>(){return x_;};
-        shared_ptr<Node<CoreT>> operator->() { return x_; };
-        Node<CoreT>& operator*() { return *(x_.get()); };
+        operator Node<T>() { return *(x_.get()); };
+        operator shared_ptr<Node<T>>(){return x_;};
+        shared_ptr<Node<T>> operator->() { return x_; };
+        Node<T>& operator*() { return *(x_.get()); };
     };
 
     iterator begin() { return iterator(start_); };
     iterator end() { return iterator(end_); };
 
-    iterator Insert(iterator pos, typename CoreT::value_type core) {
+    iterator Insert(iterator pos, T core) {
         iterator my_end = end();
         if (my_end == pos) {
             return Insert(core);
@@ -135,7 +121,7 @@ public:
                 ++it;
             if (it == my_end)
                 return iterator(nullptr);
-            shared_ptr<Node<CoreT>> n = make_shared<Node<CoreT>>(vector<T>(1, core));
+            shared_ptr<Node<T>> n = make_shared<Node<T>>(core);
             n->next = pos->next;
             n->prev = pos;
             pos->next->prev = n;
@@ -145,8 +131,8 @@ public:
         }
     }
 
-    iterator Insert(typename CoreT::value_type core) {
-        shared_ptr<Node<CoreT>> n = make_shared<Node<CoreT>>(vector<T>(1, core));
+    iterator Insert(T core) {
+        shared_ptr<Node<T>> n = make_shared<Node<T>>(core);
         n->next = start_;
         n->prev = end_;
         start_->prev = n;
@@ -159,7 +145,7 @@ public:
     friend ostream& operator<<(ostream& os, CircleList<T>& cir) {
         CircleList::iterator it = cir.begin();
         while (it != cir.end()) {
-            os << *it;
+            os << *it << " ";
             ++it;
         }
         os << *it;
@@ -185,10 +171,10 @@ public:
         int s = 0;
         auto it = CircleList<T>::begin();
         while(it != CircleList<T>::end()){
-            s += it->core[0];
+            s += it->core;
             ++it;
         }
-        s += it->core[0];
+        s += it->core;
         m_balance_v_ = s/CircleList<T>::size();
     }
 
@@ -209,7 +195,7 @@ public:
         int s = 0;
         auto it_c = pos;
         for (int i = 0; i < m_size_; i++){
-            s += it_c->core[0];
+            s += it_c->core;
             ++it_c;
         }
         return s;
@@ -224,10 +210,10 @@ public:
         if (s < m_balance_v_*m_size_)
             return iterator(nullptr);
         for (int i = 0; i < m_size_-1; i++) {
-            pos->core[0] = m_balance_v_;
+            pos->core = m_balance_v_;
             ++pos;
         }
-        pos->core[0] = s - m_balance_v_*(m_size_-1);
+        pos->core = s - m_balance_v_*(m_size_-1);
         return pos;
     }
 };
