@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
     } else {
         for (int i = 1; i < argc; i++){
             switch(stoi(argv[i])){
-                case 0: TestCircleInt(); break;            
+                case 0: TestCircleInt(); break;
                 case 1: TestCircleAdv(); break;
             }
         }

@@ -88,6 +88,7 @@ public:
     private:
         shared_ptr<Node<T>> x_;
     public:
+        iterator():x_(nullptr){};
         iterator(shared_ptr<Node<T>> n) :x_(n) {};
         iterator& operator++() { x_ = x_->next; return *this; };
         iterator& operator--() { x_ = x_->prev; return *this; };
@@ -101,6 +102,7 @@ public:
         };
         bool operator!=(const iterator& it) { return x_->my_id != it.x_->my_id; };
         bool operator==(const iterator& it) { return (x_->my_id == it.x_->my_id); };
+        bool operator<(const iterator& it) const { return x_->my_id < it.x_->my_id; };
         operator Node<T>() { return *(x_.get()); };
         operator shared_ptr<Node<T>>(){return x_;};
         shared_ptr<Node<T>> operator->() { return x_; };
@@ -225,5 +227,7 @@ public:
         pos->core = s - m_balance_v_*(m_size_-1);
         return pos;
     }
+    
+    int size(){return m_size_; };
 };
 
