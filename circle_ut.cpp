@@ -44,13 +44,15 @@ void TestCircleInt() {
     }
 };
 
-void TestCircleVec(){
-    cout << "Test circle vector" << endl;
+void TestCircleAdv(){
+    cout << "Test circle advanced." << endl;
     CircleListAdvance<int> cir = {3, 2, 6, 1, 10, 3, 2};
-    multimap<int, typename CircleListAdvance<int>::iterator> mm;
+    CircleListAdvance<int>::PQueue mm;
     cir.ComputeSums(mm);
-    for (auto a: mm){
-        cout << a.first << endl;
+    while(!mm.empty()){
+        auto a = mm.top();
+        mm.pop();
+        cout << a.sum << endl;
     }
     cout << "Before Balance" << endl;
     cout << cir << endl;
@@ -72,7 +74,7 @@ int main(int argc, char* argv[]){
         for (int i = 1; i < argc; i++){
             switch(stoi(argv[i])){
                 case 0: TestCircleInt(); break;            
-                case 1: TestCircleVec(); break;
+                case 1: TestCircleAdv(); break;
             }
         }
     }

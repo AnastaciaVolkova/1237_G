@@ -2,13 +2,13 @@
 #include <initializer_list>
 #include <algorithm>
 #include <numeric>
+#include <queue>
 #include <map>
 #include <cmath>
 #include <memory>
 #include <iostream>
 
 using namespace std;
-
 
 template<typename T>
 struct Node {
@@ -166,6 +166,15 @@ private:
     int m_balance_v_; // Balance value.
 public:
     using iterator=typename CircleList<T>::iterator;
+
+    struct MeetingSum{
+        iterator nei; // First neighbour in the meeting.
+        int sum;      // Summary of meeting.
+        bool operator<(const MeetingSum& ms)const {return sum < ms.sum;};
+    };
+
+    using PQueue=priority_queue<MeetingSum>;
+
     CircleListAdvance(initializer_list<T> ini): CircleList<T>(vector<T>(ini.begin()+1, ini.end())){
         m_size_ = *ini.begin();
         int s = 0;
@@ -180,14 +189,14 @@ public:
 
     // Computes sum for each possible meeting.
     // out: map with sum.
-    void ComputeSums(multimap<T, typename CircleList<T>::iterator>& m_sums){
+    void ComputeSums(PQueue& m_sums){
         auto it = CircleList<T>::begin();
         while (it != CircleList<T>::end()){
-           m_sums.insert(make_pair(GetSum(it), it));
+           m_sums.push({it, GetSum(it)});
             ++it;
         }
 
-        m_sums.insert(make_pair(GetSum(it), it));
+        m_sums.push({it, GetSum(it)});
         ++it;
     }
 
