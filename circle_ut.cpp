@@ -1,42 +1,80 @@
 #include "CircleList.hpp"
-#include <string>
 
-void TestCircle() {
-    CircleList<int> cir(1);
-    cir.Insert(2);
-    cir.Insert(3);
-    cir.Insert(4);
+using namespace std;
 
+void TestCircleInt() {
+    cout << "Test circle integer" << endl;
     {
-        CircleList<int>::iterator it = cir.begin();
-        it = cir.Insert(it, 10);
-        it += 2;
-        it = cir.Insert(it, 30);
-        it += 1;
-        it = cir.Insert(it, 40);
-        it = cir.begin();
-        it += (cir.size() - 1);
-        cir.Insert(it, 50);
-    }
+        CircleList<int> cir(1);
+        cir.Insert(2);
+        cir.Insert(3);
+        cir.Insert(4);
 
-    CircleList<int>::iterator it = cir.begin();
-    for (int i = 0; i < 19; i++) {
-        cout << *it << endl;
-        ++it;
+        {
+            CircleList<int>::iterator it = cir.begin();
+            it = cir.Insert(it, 10);
+            it += 2;
+            it = cir.Insert(it, 30);
+            it += 1;
+            it = cir.Insert(it, 40);
+            it = cir.begin();
+            it += (cir.size() - 1);
+            cir.Insert(it, 50);
+        }
+
+        CircleList<int>::iterator it = cir.begin();
+        for (int i = 0; i < 19; i++) {
+            cout << *it << endl;
+            ++it;
+        }
+        cout << endl << endl;
+        for (int i = 0; i < 18; i++) {
+            cout << *it << endl;
+            --it;
+        }
     }
-    cout << endl << endl;
-    for (int i = 0; i < 18; i++) {
+    {
+        CircleList<int> cir = {0, 1, 2};
+        CircleList<int>:: iterator it = cir.begin();
+        while(it != cir.end()){
+            cout << *it << endl;
+            ++it;
+        }
         cout << *it << endl;
-        --it;
     }
 };
 
+void TestCircleVec(){
+    cout << "Test circle vector" << endl;
+    CircleListAdvance<int> cir = {3, 2, 6, 1, 10, 3, 2};
+    multimap<int, typename CircleListAdvance<int>::iterator> mm;
+    cir.ComputeSums(mm);
+    for (auto a: mm){
+        cout << a.first << endl;
+    }
+    cout << "Before Balance" << endl;
+    cout << cir << endl;
+
+    auto it = cir.begin();
+    ++it;
+    cir.Balance(it);
+    cout << "After Balance" << endl;
+    cout << cir << endl;
+    cout << endl << endl;
+};
 
 template<> long long Node<conditional<is_specialization<int, vector>::value, int, vector<int>>::type>::global_id = 0;
 
 int main(int argc, char* argv[]){
-    if ((argc == 1) || (argv[1] == "0")){
-        TestCircle();
+    if (argc == 1){
+        TestCircleInt();
+    } else {
+        for (int i = 1; i < argc; i++){
+            switch(stoi(argv[i])){
+                case 0: TestCircleInt(); break;            
+                case 1: TestCircleVec(); break;
+            }
+        }
     }
     return 0;
 }

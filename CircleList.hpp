@@ -1,4 +1,3 @@
-#include <iostream>
 #include <array>
 #include <vector>
 #include <initializer_list>
@@ -9,6 +8,7 @@
 #include <tuple>
 #include <cmath>
 #include <memory>
+#include <iostream>
 
 using namespace std;
 
@@ -17,17 +17,6 @@ struct is_specialization : false_type {};
 
 template<template<typename...> class Ref, typename... Args>
 struct is_specialization<Ref<Args...>, Ref> : true_type {};
-
-struct Meeting {
-    int ai;
-    int si;
-    Meeting(int a) :ai(a), si(0) {}
-    operator int() { return ai; }
-    friend ostream& operator<<(ostream& os, const Meeting& m) {
-        os << m.ai << " " << m.si << endl;
-        return os;
-    }
-};
 
 template<typename T>
 struct Node {
@@ -155,6 +144,7 @@ public:
             return iterator(n);
         }
     }
+
     iterator Insert(typename CoreT::value_type core) {
         shared_ptr<Node<CoreT>> n = make_shared<Node<CoreT>>(vector<T>(1, core));
         n->next = start_;
@@ -164,6 +154,81 @@ public:
         end_ = n;
         size_++;
         return iterator(end_);
+    }
+
+    friend ostream& operator<<(ostream& os, CircleList<T>& cir) {
+        CircleList::iterator it = cir.begin();
+        while (it != cir.end()) {
+            os << *it;
+            ++it;
+        }
+        os << *it;
+        return os;
+    }
+
+};
+
+// * Each node consists of cartel.
+// * Possibility to join nodes.
+// * Get sum.
+// * Possibility to check neighbouring neighbours.
+// *
+template<typename T>
+class CircleListAdvance: public CircleList<T> {
+private:
+    int m_size_; // Meeting size.
+    int m_balance_v_; // Balance value.
+public:
+    using iterator=typename CircleList<T>::iterator;
+    CircleListAdvance(initializer_list<T> ini): CircleList<T>(vector<T>(ini.begin()+1, ini.end())){
+        m_size_ = *ini.begin();
+        int s = 0;
+        auto it = CircleList<T>::begin();
+        while(it != CircleList<T>::end()){
+            s += it->core[0];
+            ++it;
+        }
+        s += it->core[0];
+        m_balance_v_ = s/CircleList<T>::size();
+    }
+
+    // Computes sum for each possible meeting.
+    // out: map with sum.
+    void ComputeSums(multimap<T, typename CircleList<T>::iterator>& m_sums){
+        auto it = CircleList<T>::begin();
+        while (it != CircleList<T>::end()){
+           m_sums.insert(make_pair(GetSum(it), it));
+            ++it;
+        }
+
+        m_sums.insert(make_pair(GetSum(it), it));
+        ++it;
+    }
+
+    T GetSum(typename CircleList<T>::iterator pos){
+        int s = 0;
+        auto it_c = pos;
+        for (int i = 0; i < m_size_; i++){
+            s += it_c->core[0];
+            ++it_c;
+        }
+        return s;
+    }
+
+    // Make all items in meeting balanced.
+    // Return iterator to unbalanced elements.
+    // If meeting elements couldn't be balanced, return nullptr.
+    // pos - start of the group.
+    iterator Balance(iterator pos){
+        int s = GetSum(pos);
+        if (s < m_balance_v_*m_size_)
+            return iterator(nullptr);
+        for (int i = 0; i < m_size_-1; i++) {
+            pos->core[0] = m_balance_v_;
+            ++pos;
+        }
+        pos->core[0] = s - m_balance_v_*(m_size_-1);
+        return pos;
     }
 };
 
